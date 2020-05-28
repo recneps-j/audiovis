@@ -1,8 +1,12 @@
 #include "audio_helper.h"
+#include <iostream>
+#include <thread>
+#include <chrono>
 
 #define SAMPLE_RATE 44100
 
-bool InitPortAudio(void) {
+bool AudioHelper::InitPortAudio( void ) {
+    std::cout << "Initialising PortAudio\n";
     //Initialise portaudio API
     PaError err;
     err = Pa_Initialize();
@@ -12,38 +16,15 @@ bool InitPortAudio(void) {
     return true;
 }
 
-bool StartReadingAudio(void) {
-    PaStream *input_stream;
+bool AudioHelper::StopReadingAudio( void ) {
     PaError err;
-    DSP_AudioData audio_input_data;
-    /* Open an audio I/O stream. */
-    err = Pa_OpenDefaultStream( &input_stream,
-                                   2,          /* stereo input */
-                                   2,          /* stereo output */
-                                   paFloat32,  /* 32 bit floating point output */
-                                   SAMPLE_RATE,
-                                   paFramesPerBufferUnspecified,        /* frames per buffer, i.e. the number
-                                                       of sample frames that PortAudio will
-                                                       request from the callback. Many apps
-                                                       may want to use
-                                                       paFramesPerBufferUnspecified, which
-                                                       tells PortAudio to pick the best,
-                                                       possibly changing, buffer size.*/
-                                    paCallback, /* this is your callback function */
-                                    &audio_input_data ); /*This is a pointer that will be passed to
-                                                       your callback*/
-    err = Pa_StartStream( stream );
-    while(Pa_IsStreamActive( stream ));
-    err = Pa_StopStream( stream );
-
+    err = Pa_StopStream( this->input_stream );
     /* -- don't forget to cleanup! -- */
-    err = Pa_CloseStream( stream );
-                                                
+    err = Pa_CloseStream( this->input_stream );
+    return 0;
 }
 
-
-
-int paCallback( const void *inputBuffer, void *outputBuffer,
+int AudioHelper::paCallback( const void *inputBuffer, void *outputBuffer,
                 unsigned long framesPerBuffer,
                 const PaStreamCallbackTimeInfo* timeInfo,
                 PaStreamCallbackFlags statusFlags,
@@ -57,7 +38,33 @@ int paCallback( const void *inputBuffer, void *outputBuffer,
 
     for( i=0; i<framesPerBuffer; i++ )
     {
-        *out++ = *in++
+        // Left
+        *out++ = *in++;
+        // Right
+        *out++ = *in++;
     }
     return 0;
+}
+
+bool AudioHelper::StartReadingAudio( void ) {
+    PaError err;
+    DSP_AudioData audio_input_data;
+    /* Open an audio I/O stream. */
+    err = Pa_OpenDefaultStream( &this->input_stream,
+                                   2,          /* stereo input */
+                                   2,          /* stereo output */
+                                   paFloat32,  /* 32 bit floating point output */
+                                   SAMPLE_RATE,
+                                   paFramesPerBufferUnspecified,        /* frames per buffer, i.e. the number
+                                                       of sample frames that PortAudio will
+                                                       request from the callback. Many apps
+                                                       may want to use
+                                                       paFramesPerBufferUnspecified, which
+                                                       tells PortAudio to pick the best,
+                                                       possibly changing, buffer size.*/
+                                    this->paCallback, /* this is your callback function */
+                                    &audio_input_data ); /*This is a pointer that will be passed to
+                                                       your callback*/
+    err = Pa_StartStream(input_stream);
+    return true;                                      
 }
