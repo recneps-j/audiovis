@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 # set the project name and version
 project(audiovis VERSION 0.1)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src" SRC_LIST)

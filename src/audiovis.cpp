@@ -2,6 +2,15 @@
 #include <iostream>
 #include "audio_helper.h"
 #include "window.h"
+#include "events.h"
+#include <future>
+
+int exec(EventHandler& event_handler) {
+    while (!event_handler.ShouldQuit()) {
+        event_handler.ProcessEvents();
+    }
+    return 0;
+}
 
 int main(int argc, char const *argv[])
 {   
@@ -13,21 +22,19 @@ int main(int argc, char const *argv[])
 
     Window window = Window();
     window.init();
-    //Update window (this should be called repetetively from another thread)
-    window.update();
 
     AudioHelper ah;
     if (!AudioHelper::InitPortAudio()) {
         std::cout << "Error initialising portaudio. Exiting...\n";
         return 1;
     }
+
     std::cout << "Initialised portaudio successfully\n";
 
     std::cout << "Starting test stream\n";
     ah.StartReadingAudio();
-    // Wait for user to stop stream
-    std::cin.get();
-    std::cout << "Stopping test stream\n";
 
-    return 0;
+    EventHandler event_handler;
+
+    return exec(event_handler);
 }

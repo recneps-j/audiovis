@@ -24,6 +24,7 @@ public:
                                     const PaStreamCallbackTimeInfo* timeInfo,
                                     PaStreamCallbackFlags statusFlags,
                                     void *userData );
+                                    
     bool StartReadingAudio( void );
     bool StopReadingAudio( void );
     

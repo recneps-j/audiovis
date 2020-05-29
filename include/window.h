@@ -9,6 +9,7 @@ class Window
 {
 public:
     Window(){};
+    void RunLoop(void);
     bool init(void);
     void draw(void);
     void update(void);

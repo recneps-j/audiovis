@@ -1,10 +1,18 @@
 #include "window.h"
 #include <SDL.h>
 #include <iostream>
+#include <thread>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
+
+void Window::RunLoop(void) {
+    while(true) {
+        this->update();
+        SDL_Delay(50);
+    }
+}
 
 bool InitSDL(void) {
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -27,9 +35,6 @@ bool Window::init(void) {
 
         //Update the surface
         SDL_UpdateWindowSurface(this->window);
-
-        //Wait two seconds
-        SDL_Delay(2000);
     }
     return true;
 }
@@ -37,7 +42,7 @@ bool Window::init(void) {
 void Window::update(void) {
     SDL_Event e;                                            
     //SDL_PollEvent takes an event from the event queue   
-    while ( SDL_PollEvent( &e ) != 0 ) {                         
+    while (SDL_PollEvent(&e) != 0) {                         
         if (e.type == SDL_QUIT) {                       
             return;                                
         }                                   
