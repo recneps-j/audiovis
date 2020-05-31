@@ -79,7 +79,8 @@
         "typeindex": "cpp",
         "variant": "cpp",
         "memory_resource": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "codecvt": "cpp"
     },
     "cmake.configureOnOpen": false
 }

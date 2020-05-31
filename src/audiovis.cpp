@@ -8,7 +8,7 @@
 int exec(EventHandler& event_handler, Window& w) {
     while (!event_handler.ShouldQuit()) {
         event_handler.ProcessEvents();
-        w.update();
+        w.Update();
     }
     return 0;
 }
@@ -29,7 +29,8 @@ int main(int argc, char const *argv[])
     EventHandler event_handler;
 
     Window window = Window(&event_handler);
-    window.init();
+    window.Init();
+    window.DrawBackground();
 
     AudioHelper ah;
 
