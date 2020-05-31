@@ -4,11 +4,17 @@
 #include <vector>
 #include <mutex>
 #include <map>
+#include <string>
 
 enum EventType {
     EVENT_QUIT,
     EVENT_STOP_AUDIO,
     EVENT_NOEVENT
+};
+
+struct Event {
+    EventType e;
+    std::string message;
 };
 
 class EventProducer {
@@ -26,12 +32,6 @@ public:
     virtual ~Observer(){};
 };
 
-class SimpleObserver : Observer {
-public:
-    SimpleObserver(){};
-    virtual void CatchEvent(EventType e) override;
-};
-
 class EventHandler {
     typedef std::vector<Observer*> ObserverList; 
     typedef std::map<EventType, ObserverList> ObserversTable;
@@ -41,12 +41,11 @@ private:
     std::vector<EventType> event_queue;
     bool should_quit = false;
     ObserversTable observer_connections;
-    SimpleObserver quit_notifier;
 public:
     EventHandler(){};
     bool ShouldQuit(void);
     bool TriggerEvent(EventType e);
-    // bool Connect(EventType e, Observer& o);
+    bool Connect(EventType e, Observer& o);
     void ProcessEvents(void);
     EventType GetNextEvent(void);
 };

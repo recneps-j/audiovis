@@ -5,6 +5,17 @@
 
 #define SAMPLE_RATE 44100
 
+void AudioHelper::CatchEvent(EventType e) {
+    switch (e) {
+        case EventType::EVENT_STOP_AUDIO:
+        case EventType::EVENT_QUIT:
+            this->StopReadingAudio();
+            break;
+        default:
+            break;
+    }
+}
+
 bool AudioHelper::InitPortAudio( void ) {
     std::cout << "Initialising PortAudio\n";
     //Initialise portaudio API
@@ -17,6 +28,7 @@ bool AudioHelper::InitPortAudio( void ) {
 }
 
 bool AudioHelper::StopReadingAudio( void ) {
+    std::cout << "Stopping audio stream and cleaning up." << std::endl;
     PaError err;
     err = Pa_StopStream( this->input_stream );
     /* -- don't forget to cleanup! -- */

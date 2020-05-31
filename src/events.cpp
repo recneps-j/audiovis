@@ -1,19 +1,17 @@
 #include "events.h"
 #include <mutex>
 #include <condition_variable>
+#include <iostream>
 
-// bool EventHandler::TriggerEvent(EventType e) {
-//     std::unique_lock<std::mutex> lock(this->queue_mutex);
-//     this->event_queue.push_back(e);
-// }
+bool EventHandler::TriggerEvent(EventType e) {
+    std::unique_lock<std::mutex> lock(this->queue_mutex);
+    this->event_queue.push_back(e);
+    return true;
+}
 
-// bool EventHandler::Connect(EventType e, Observer& o) {
-//     this->observer_connections[e].push_back(o);
-//     return true;
-// }
-
-void SimpleObserver::CatchEvent(EventType e) {
-    return;
+bool EventHandler::Connect(EventType e, Observer& o) {
+    observer_connections[e].push_back(&o);
+    return true;
 }
 
 void EventHandler::ProcessEvents(void) {
@@ -23,7 +21,6 @@ void EventHandler::ProcessEvents(void) {
         this->event_queue.pop_back();
         if (e == EventType::EVENT_QUIT) {
             this->should_quit = true;
-            return;
         }
         ObserverList& observers = this->observer_connections[e];
         for (int i=0; i<observers.size(); i++) {

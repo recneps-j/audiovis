@@ -7,6 +7,16 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+void Window::CatchEvent(EventType e) {
+    switch (e) {
+        case EventType::EVENT_QUIT:
+            this->close();
+            break;
+        default:
+            break;
+    }
+}
+
 void Window::RunLoop(void) {
     while(true) {
         this->update();
@@ -43,7 +53,8 @@ void Window::update(void) {
     SDL_Event e;                                            
     //SDL_PollEvent takes an event from the event queue   
     while (SDL_PollEvent(&e) != 0) {                         
-        if (e.type == SDL_QUIT) {                       
+        if (e.type == SDL_QUIT) {    
+            this->_eh->TriggerEvent(EventType::EVENT_QUIT);                
             return;                                
         }                                   
     } 

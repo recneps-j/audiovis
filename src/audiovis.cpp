@@ -5,11 +5,17 @@
 #include "events.h"
 #include <future>
 
-int exec(EventHandler& event_handler) {
+int exec(EventHandler& event_handler, Window& w) {
     while (!event_handler.ShouldQuit()) {
         event_handler.ProcessEvents();
+        w.update();
     }
     return 0;
+}
+
+void GetUserInputNB(EventHandler& ev) {
+    std::cin.get();
+    ev.TriggerEvent(EventType::EVENT_QUIT);
 }
 
 int main(int argc, char const *argv[])
@@ -20,10 +26,16 @@ int main(int argc, char const *argv[])
     }
     std::cout << "Initialised SDL successfully\n";
 
-    Window window = Window();
+    EventHandler event_handler;
+
+    Window window = Window(&event_handler);
     window.init();
 
     AudioHelper ah;
+
+    event_handler.Connect(EventType::EVENT_QUIT, ah);
+    event_handler.Connect(EventType::EVENT_QUIT, window);
+
     if (!AudioHelper::InitPortAudio()) {
         std::cout << "Error initialising portaudio. Exiting...\n";
         return 1;
@@ -33,8 +45,9 @@ int main(int argc, char const *argv[])
 
     std::cout << "Starting test stream\n";
     ah.StartReadingAudio();
+    
+    std::thread t(&GetUserInputNB, std::ref(event_handler));
+    t.detach();
 
-    EventHandler event_handler;
-
-    return exec(event_handler);
+    return exec(event_handler, window);
 }

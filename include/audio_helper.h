@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <portaudio.h>
+#include "events.h"
 
 struct DSP_AudioData {
     std::vector<float> sample_data;
@@ -13,11 +14,12 @@ struct DSP_AudioData {
 // enum InputStreamType {
 //     kDefault
 // };
-class AudioHelper {
+class AudioHelper : public Observer {
 private:
     PaStream *input_stream;
 public:
     AudioHelper(){}
+    virtual void CatchEvent(EventType e) override;
     static bool InitPortAudio( void );
     static int paCallback( const void *inputBuffer, void *outputBuffer,
                                     unsigned long framesPerBuffer,
