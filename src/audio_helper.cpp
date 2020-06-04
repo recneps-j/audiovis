@@ -5,6 +5,13 @@
 
 #define SAMPLE_RATE 44100
 
+void AudioHelper::CheckDataReady(void) {
+    if (this->input_stream_data.data_ready) {
+        this->input_stream_data.data_ready = false;
+        this->_eh->TriggerEvent(EventType::EVENT_AUDIO_DATA_READY);
+    }
+}
+
 void AudioHelper::CatchEvent(EventType e) {
     switch (e) {
         case EventType::EVENT_STOP_AUDIO:
@@ -36,33 +43,38 @@ bool AudioHelper::StopReadingAudio( void ) {
     return 0;
 }
 
-int AudioHelper::paCallback( const void *inputBuffer, void *outputBuffer,
-                unsigned long framesPerBuffer,
-                const PaStreamCallbackTimeInfo* timeInfo,
-                PaStreamCallbackFlags statusFlags,
-                void *userData )
+int AudioHelper::paCallback(const void *input_buffer, void *output_buffer,
+                            unsigned long frames_per_buffer,
+                            const PaStreamCallbackTimeInfo* time_info,
+                            PaStreamCallbackFlags status_flags,
+                            void *user_data)
 {
     /* Cast data passed through stream to our structure. */
-    DSP_AudioData *data = (DSP_AudioData*)userData;
-    float *out = (float*)outputBuffer;
-    float *in = (float*)inputBuffer;
+    DSP_AudioData *input_stream_data = (DSP_AudioData*)user_data;
+    float *out = (float*)output_buffer;
+    float *in = (float*)input_buffer;
     unsigned int i;
 
-    for( i=0; i<framesPerBuffer; i++ )
+    for( i=0; i<frames_per_buffer; i++ )
     {
+        input_stream_data->sample_data[0].push_back(*in);
         // Left
         *out++ = *in++;
+
+        input_stream_data->sample_data[1].push_back(*in);
         // Right
         *out++ = *in++;
     }
+
+    // Might need to implement thread-safe access
+    input_stream_data->data_ready = true;
     return 0;
 }
 
 bool AudioHelper::StartReadingAudio( void ) {
     PaError err;
-    DSP_AudioData audio_input_data;
     /* Open an audio I/O stream. */
-    err = Pa_OpenDefaultStream( &this->input_stream,
+    err = Pa_OpenDefaultStream(&this->input_stream,
                                    2,          /* stereo input */
                                    2,          /* stereo output */
                                    paFloat32,  /* 32 bit floating point output */
@@ -75,8 +87,13 @@ bool AudioHelper::StartReadingAudio( void ) {
                                                        tells PortAudio to pick the best,
                                                        possibly changing, buffer size.*/
                                     this->paCallback, /* this is your callback function */
-                                    &audio_input_data ); /*This is a pointer that will be passed to
+                                    &(this->input_stream_data)); /*This is a pointer that will be passed to
                                                        your callback*/
+    
+    //Hard-code default setup
+    this->input_stream_data.channels = 2;
+    this->input_stream_data.sample_rate = SAMPLE_RATE;
+    
     err = Pa_StartStream(input_stream);
     return true;                                      
 }

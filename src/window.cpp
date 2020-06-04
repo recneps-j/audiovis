@@ -14,6 +14,9 @@ void Window::CatchEvent(EventType e) {
         case EventType::EVENT_QUIT:
             this->Close();
             break;
+        case EventType::EVENT_AUDIO_DATA_READY:
+            this->current_effect->DoProcessing(this->renderer);
+            break;
         default:
             break;
     }
@@ -23,11 +26,10 @@ void Window::DrawBackground(void) {
     std::string p = "/Users/joespencer/Projects/audiovis/audiovis/img/bg.png";
     SDL_Surface* bg = LoadPNGSurface(p, this->surface);
     //Apply the image
-    SDL_Texture* bg_tex = SDL_CreateTextureFromSurface(this->renderer, bg);
-    // SDL_FreeSurface(bg);
-    SDL_RenderCopy(this->renderer, bg_tex, NULL, NULL);
+    this->bg_tex = SDL_CreateTextureFromSurface(this->renderer, bg);
+    SDL_FreeSurface(bg);
+    SDL_RenderCopy(this->renderer, this->bg_tex, NULL, NULL);
     SDL_RenderPresent(this->renderer);
-    SDL_Delay(2000);
 }
 
 void Window::RunLoop(void) {
@@ -43,22 +45,7 @@ SDL_Surface* LoadPNGSurface(std::string path, SDL_Surface* surface) {
 
     //Load image at specified path
     SDL_Surface* loaded_surface = IMG_Load(path.c_str());
-    // if(loaded_surface == NULL)
-    // {
-    //     printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
-    // }
-    // else
-    // {
-    //     //Convert surface to screen format
-    //     optimized_surface = SDL_ConvertSurface(loaded_surface, surface->format, 0);
-    //     if(optimized_surface == NULL)
-    //     {
-    //         printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-    //     }
 
-    //     //Get rid of old loaded surface
-    //     SDL_FreeSurface(loaded_surface);
-    // }
     std::cout << "Loaded image OK" << std::endl;
     return loaded_surface;
 }
@@ -102,14 +89,30 @@ void Window::Update(void) {
             this->_eh->TriggerEvent(EventType::EVENT_QUIT);                
             return;                                
         }                                   
-    } 
+    }
+    SDL_RenderClear(this->renderer);
+    SDL_RenderCopy(this->renderer, this->bg_tex, NULL, NULL);
+    this->current_effect->DoProcessingDummy(this->renderer);
+    SDL_RenderPresent(this->renderer);
+    SDL_Delay(100);
+    // Not needed as updated on an event basis
+    // if (this->current_effect) {
+    //     this->current_effect->DoProcessing(this->effect_renderer);
+    // }
 }
 
 bool Window::Close(void) {
     //Destroy window
+    SDL_DestroyTexture(this->bg_tex);
+    SDL_DestroyRenderer(this->renderer);
+    SDL_FreeSurface(this->surface);
     SDL_DestroyWindow(this->window);
-
     //Quit SDL subsystems
     SDL_Quit();
+    return true;
+}
+
+bool Window::SetCurrentEffect(VisualEffectProcessor* effect) {
+    this->current_effect = effect;
     return true;
 }

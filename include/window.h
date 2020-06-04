@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "events.h"
 #include <string>
+#include "visual.h"
 
 bool InitSDL(void);
 SDL_Surface* LoadPNGSurface(std::string path, SDL_Surface* surface);
@@ -18,9 +19,12 @@ public:
     void Update(void);
     void DrawBackground(void);
     bool Close(void);
+    bool SetCurrentEffect(VisualEffectProcessor* effect);
 private:
+    VisualEffectProcessor* current_effect = 0;
     EventHandler* _eh;
     //Window to render to
+    SDL_Texture* bg_tex;
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Surface* surface;

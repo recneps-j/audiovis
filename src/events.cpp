@@ -4,7 +4,7 @@
 #include <iostream>
 
 bool EventHandler::TriggerEvent(EventType e) {
-    std::unique_lock<std::mutex> lock(this->queue_mutex);
+    std::unique_lock<std::mutex> lock(this->queue_mutex.data_access);
     this->event_queue.push_back(e);
     return true;
 }
@@ -15,7 +15,7 @@ bool EventHandler::Connect(EventType e, Observer& o) {
 }
 
 void EventHandler::ProcessEvents(void) {
-    std::unique_lock<std::mutex> lock(this->queue_mutex);
+    std::unique_lock<std::mutex> lock(this->queue_mutex.data_access);
     while (!this->event_queue.empty()) {
         EventType e = this->event_queue.back();
         this->event_queue.pop_back();
@@ -31,7 +31,7 @@ void EventHandler::ProcessEvents(void) {
 }
 
 EventType EventHandler::GetNextEvent(void) {
-    std::unique_lock<std::mutex> lock(this->queue_mutex);
+    std::unique_lock<std::mutex> lock(this->queue_mutex.data_access);
     if (!this->event_queue.empty()) {
         EventType e = this->event_queue.back();
         this->event_queue.pop_back();

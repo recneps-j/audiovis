@@ -9,21 +9,13 @@
 enum EventType {
     EVENT_QUIT,
     EVENT_STOP_AUDIO,
+    EVENT_AUDIO_DATA_READY,
     EVENT_NOEVENT
 };
 
 struct Event {
     EventType e;
     std::string message;
-};
-
-class EventProducer {
-private:
-    std::mutex* queue_mutex;
-public:
-    EventProducer(std::mutex* m){ queue_mutex = m; };
-    virtual void ThrowEvent(EventType e) = 0;
-    virtual ~EventProducer(){};
 };
 
 class Observer {
@@ -35,9 +27,12 @@ public:
 class EventHandler {
     typedef std::vector<Observer*> ObserverList; 
     typedef std::map<EventType, ObserverList> ObserversTable;
+    typedef struct{std::mutex data_access; 
+                    std::mutex next_to_access; 
+                    std::mutex low_priority;} TripleMutex;
 
 private:
-    std::mutex queue_mutex;
+    TripleMutex queue_mutex;
     std::vector<EventType> event_queue;
     bool should_quit = false;
     ObserversTable observer_connections;
