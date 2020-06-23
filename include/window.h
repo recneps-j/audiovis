@@ -6,6 +6,10 @@
 #include <string>
 #include "visual.h"
 
+//Screen dimension constants
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
+
 bool InitSDL(void);
 SDL_Surface* LoadPNGSurface(std::string path, SDL_Surface* surface);
 

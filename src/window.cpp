@@ -5,17 +5,17 @@
 #include <SDL_image.h>
 #include <string>
 
-//Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
-
 void Window::CatchEvent(EventType e) {
     switch (e) {
         case EventType::EVENT_QUIT:
             this->Close();
             break;
         case EventType::EVENT_AUDIO_DATA_READY:
+            SDL_RenderClear(this->renderer);
+            // SDL_RenderCopy(this->renderer, this->bg_tex, NULL, NULL);
             this->current_effect->DoProcessing(this->renderer);
+            SDL_RenderPresent(this->renderer);
+            SDL_Delay(100);
             break;
         default:
             break;
@@ -90,11 +90,11 @@ void Window::Update(void) {
             return;                                
         }                                   
     }
-    SDL_RenderClear(this->renderer);
-    SDL_RenderCopy(this->renderer, this->bg_tex, NULL, NULL);
-    this->current_effect->DoProcessingDummy(this->renderer);
-    SDL_RenderPresent(this->renderer);
-    SDL_Delay(100);
+    // SDL_RenderClear(this->renderer);
+    // SDL_RenderCopy(this->renderer, this->bg_tex, NULL, NULL);
+    // this->current_effect->DoProcessingDummy(this->renderer);
+    // SDL_RenderPresent(this->renderer);
+    // SDL_Delay(100);
     // Not needed as updated on an event basis
     // if (this->current_effect) {
     //     this->current_effect->DoProcessing(this->effect_renderer);

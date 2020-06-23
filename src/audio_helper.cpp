@@ -93,7 +93,12 @@ bool AudioHelper::StartReadingAudio( void ) {
     //Hard-code default setup
     this->input_stream_data.channels = 2;
     this->input_stream_data.sample_rate = SAMPLE_RATE;
-    
+    if (err) {
+        std::cout << Pa_GetErrorText(err) << std::endl;
+    }
     err = Pa_StartStream(input_stream);
+    if (err) {
+        std::cout << Pa_GetErrorText(err) << std::endl;
+    }
     return true;                                      
 }

@@ -1,4 +1,5 @@
 #include "visual.h"
+#include "window.h"
 #include <iostream>
 
 void OscilloscopeEffect::CatchEvent(EventType e) {
@@ -12,6 +13,17 @@ void OscilloscopeEffect::CatchEvent(EventType e) {
 }
 
 void OscilloscopeEffect::DoProcessing(SDL_Renderer* renderer) {
+    // std::cout << "TRYING TO DRAW SAMPLES" << std::endl;
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    
+    int buffer_len = this->_input_data->sample_data[0].size();
+    float x_step = (float)SCREEN_WIDTH/(float)buffer_len;
+
+    for (int i=0;i<buffer_len;i++) {
+        SDL_RenderDrawPoint(renderer, (int)(x_step*i), (int)(SCREEN_HEIGHT/2 + this->_input_data->sample_data[0][i]*SCREEN_HEIGHT));
+    }
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
     this->_input_data->sample_data[0].clear();
     this->_input_data->sample_data[1].clear();
 }

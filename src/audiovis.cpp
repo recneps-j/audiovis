@@ -29,17 +29,21 @@ int main(int argc, char const *argv[])
     }
     std::cout << "Initialised SDL successfully\n";
 
+    // Create event handler object to be passed throughout the program
     EventHandler event_handler;
 
+    // Create the main window and initialise it
     Window window = Window(&event_handler);
     window.Init();
-    window.DrawBackground();
+    // window.DrawBackground();
 
+    // Create an audiohelper object to manage Portaudio streams
     AudioHelper ah(&event_handler);
 
     OscilloscopeEffect oe(&ah.input_stream_data);
     window.SetCurrentEffect(&oe);
 
+    // Specify connections between event triggers and Obeserver (receiver) objects
     event_handler.Connect(EventType::EVENT_QUIT, ah);
     event_handler.Connect(EventType::EVENT_QUIT, window);
     event_handler.Connect(EventType::EVENT_AUDIO_DATA_READY, window);
@@ -53,9 +57,11 @@ int main(int argc, char const *argv[])
 
     std::cout << "Starting test stream\n";
     ah.StartReadingAudio();
-    
+
+    // Separate thread to check for used input in the console non-blocking. This closes down the program
     std::thread t(&GetUserInputNB, std::ref(event_handler));
     t.detach();
 
+    // Run the main loop
     return exec(event_handler, window, ah);
 }
