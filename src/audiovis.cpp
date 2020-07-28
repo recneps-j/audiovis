@@ -40,8 +40,9 @@ int main(int argc, char const *argv[])
     // Create an audiohelper object to manage Portaudio streams
     AudioHelper ah(&event_handler);
 
-    OscilloscopeEffect oe(&ah.input_stream_data);
-    window.SetCurrentEffect(&oe);
+    //OscilloscopeEffect oe(&ah.input_stream_data);
+    CircleEffect ce(&ah.input_stream_data);
+    window.SetCurrentEffect(&ce);
 
     // Specify connections between event triggers and Obeserver (receiver) objects
     event_handler.Connect(EventType::EVENT_QUIT, ah);

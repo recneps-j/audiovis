@@ -10,7 +10,9 @@ public:
     DSP_AudioData* _input_data; 
     virtual void DoProcessing(SDL_Renderer* renderer) = 0;
     virtual void DoProcessingDummy(SDL_Renderer* renderer) = 0;
+    virtual void CatchEvent(EventType e) override;
     virtual ~VisualEffectProcessor(){};
+    void StopProcessing(void);
 };
 
 class OscilloscopeEffect : public VisualEffectProcessor {
@@ -22,10 +24,17 @@ public:
                                                     this->rect_to_draw.y = 0;
                                                     this->rect_to_draw.w = 32;
                                                     this->rect_to_draw.h = 32;}
-    virtual void CatchEvent(EventType e) override;
     virtual void DoProcessing(SDL_Renderer* renderer) override;
     virtual void DoProcessingDummy(SDL_Renderer* renderer) override;
-    void StopProcessing(void);
+};
+
+class CircleEffect : public VisualEffectProcessor {
+private:
+public:
+    CircleEffect(DSP_AudioData* input_data) { this->_input_data = input_data; }
+    virtual void DoProcessing(SDL_Renderer* renderer) override;
+    virtual void DoProcessingDummy(SDL_Renderer* renderer) override;
+
 };
 
 #endif // VISUAL_H
